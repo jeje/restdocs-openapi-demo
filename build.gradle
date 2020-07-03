@@ -1,0 +1,85 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.9.RELEASE'
+        springRestDocsToOpenApiVersion = '0.9.7'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("com.epages:restdocs-api-spec-gradle-plugin:${springRestDocsToOpenApiVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.epages.restdocs-api-spec'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-data-rest')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    runtimeOnly('com.h2database:h2')
+
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
+
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:${springRestDocsToOpenApiVersion}")
+    testImplementation('com.google.guava:guava:23.0')
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+openapi {
+    host = 'localhost:8080'
+    basePath = '/api'
+    title = 'MaFactu API'
+    description = 'MaFactu API for subscriptions and products'
+    version = '0.1.0'
+    format = 'yaml'
+}
+
+openapi3 {
+    server = 'https://localhost:8080'
+    title = 'MaFactu API'
+    description = 'MaFactu API for subscriptions and products'
+    version = '0.1.0'
+    format = 'yaml'
+    tagDescriptionsPropertiesFile = "src/test/resources/tags.yaml"
+}
+
+postman {
+    title = 'MaFactu API'
+    version = '0.1.0'
+    baseUrl = 'https://localhost:8080'
+}
